@@ -1,23 +1,20 @@
 package com.example.video3.document;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.Collection;
 import java.util.Collections;
 
-@Document
-@Data
-@RequiredArgsConstructor
-@NoArgsConstructor
+import javax.persistence.*;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import lombok.NonNull;;
+
+@Entity
 public class User implements UserDetails {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private String id;
 
     @NonNull
@@ -25,6 +22,14 @@ public class User implements UserDetails {
 
     @NonNull
     private String password;
+
+    public User(String username2, String password2) {
+        this.username = username2;
+        this.password = password2;
+    }
+
+    public User() {
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -50,4 +55,33 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @Override
+    public String getPassword() {
+
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+
+        return username;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password2) {
+        this.password = password2;
+    }
+
 }

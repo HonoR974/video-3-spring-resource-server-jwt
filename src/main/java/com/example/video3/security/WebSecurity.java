@@ -7,7 +7,6 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.json.Converter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -46,19 +45,18 @@ public class WebSecurity {
         http
                 .authorizeHttpRequests((authorize) -> authorize
                         .antMatchers("/api/auth/*").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .csrf().disable()
                 .cors().disable()
                 .httpBasic().disable()
-                .oauth2ResourceServer((oauth2) ->
-                        oauth2.jwt((jwt) -> jwt.jwtAuthenticationConverter(jwtToUserConverter))
-                )
+
+                .oauth2ResourceServer(
+                        (oauth2) -> oauth2.jwt((jwt) -> jwt.jwtAuthenticationConverter(jwtToUserConverter)))
+
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling((exceptions) -> exceptions
                         .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
-                );
+                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
         return http.build();
     }
 
@@ -71,8 +69,7 @@ public class WebSecurity {
     @Bean
     @Primary
     JwtEncoder jwtAccessTokenEncoder() {
-        JWK jwk = new RSAKey
-                .Builder(keyUtils.getAccessTokenPublicKey())
+        JWK jwk = new RSAKey.Builder(keyUtils.getAccessTokenPublicKey())
                 .privateKey(keyUtils.getAccessTokenPrivateKey())
                 .build();
         JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
@@ -88,8 +85,7 @@ public class WebSecurity {
     @Bean
     @Qualifier("jwtRefreshTokenEncoder")
     JwtEncoder jwtRefreshTokenEncoder() {
-        JWK jwk = new RSAKey
-                .Builder(keyUtils.getRefreshTokenPublicKey())
+        JWK jwk = new RSAKey.Builder(keyUtils.getRefreshTokenPublicKey())
                 .privateKey(keyUtils.getRefreshTokenPrivateKey())
                 .build();
         JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));

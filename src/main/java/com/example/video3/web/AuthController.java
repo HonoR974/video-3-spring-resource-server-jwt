@@ -37,24 +37,30 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody SignupDTO signupDTO) {
+
+        System.out.println("\n signupDTO " + signupDTO.toString());
+
         User user = new User(signupDTO.getUsername(), signupDTO.getPassword());
         userDetailsManager.createUser(user);
 
-        Authentication authentication = UsernamePasswordAuthenticationToken.authenticated(user, signupDTO.getPassword(), Collections.EMPTY_LIST);
+        Authentication authentication = UsernamePasswordAuthenticationToken.authenticated(user, signupDTO.getPassword(),
+                Collections.EMPTY_LIST);
 
         return ResponseEntity.ok(tokenGenerator.createToken(authentication));
     }
 
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody LoginDTO loginDTO) {
-        Authentication authentication = daoAuthenticationProvider.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(loginDTO.getUsername(), loginDTO.getPassword()));
+        Authentication authentication = daoAuthenticationProvider.authenticate(
+                UsernamePasswordAuthenticationToken.unauthenticated(loginDTO.getUsername(), loginDTO.getPassword()));
 
         return ResponseEntity.ok(tokenGenerator.createToken(authentication));
     }
 
     @PostMapping("/token")
     public ResponseEntity token(@RequestBody TokenDTO tokenDTO) {
-        Authentication authentication = refreshTokenAuthProvider.authenticate(new BearerTokenAuthenticationToken(tokenDTO.getRefreshToken()));
+        Authentication authentication = refreshTokenAuthProvider
+                .authenticate(new BearerTokenAuthenticationToken(tokenDTO.getRefreshToken()));
         Jwt jwt = (Jwt) authentication.getCredentials();
         // check if present in db and not revoked, etc
 
